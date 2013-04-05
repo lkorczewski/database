@@ -1,4 +1,4 @@
 database
 ========
 
-A simple database wrapper 
+A simple MySQL database wrapper 
