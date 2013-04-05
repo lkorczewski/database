@@ -109,7 +109,7 @@ class Database {
 		$result = mysqli_query($this->mysqli, $query);
 		
 		// boolean result
-		if(!mysqli_num_rows($result))
+		if(is_bool($result))
 			return $result;
 		
 		// rows in result
@@ -119,6 +119,28 @@ class Database {
 		}
 		return $array_result;
 	}
+	
+	//------------------------------------------------
+	// informative functions
+	//------------------------------------------------
+	
+	function get_affected_rows(){
+		return mysqli_affected_rows($this->mysqli);
+	}
+	
+	//------------------------------------------------
+	// transaction
+	//------------------------------------------------
+	
+	function start_transaction(){
+		mysqli_autocommit($this->mysqli, FALSE);
+	}
+	
+	function commit_transaction(){
+		mysqli_commit($this->mysqli);
+		mysqli_autocommit($this->mysqli, FALSE);
+	}
+	
 	
 	//------------------------------------------------
 	// closing connection
