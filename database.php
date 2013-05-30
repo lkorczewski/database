@@ -138,7 +138,7 @@ class Database {
 	
 	function commit_transaction(){
 		mysqli_commit($this->mysqli);
-		mysqli_autocommit($this->mysqli, FALSE);
+		mysqli_autocommit($this->mysqli, TRUE);
 	}
 	
 	
