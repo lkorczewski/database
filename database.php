@@ -8,8 +8,8 @@
 class Database {
 	
 	const STATE_UNCONNECTED = 0;
-	const STATE_CONNECTED = -1;
-	const STATE_FAILED = 1;
+	const STATE_CONNECTED = 1;
+	const STATE_FAILED = -1;
 	
 	private $mysqli;
 	private $state;
@@ -172,7 +172,7 @@ class Database {
 		if($result === false) return false;
 		
 		// returning one row
-		$row = $this->mysqli->fetch_assoc();
+		$row = $result->fetch_assoc();
 		
 		return $row;
 		
