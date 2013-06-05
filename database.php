@@ -7,6 +7,10 @@
 
 class Database {
 	
+	const STATE_UNCONNECTED = 0;
+	const STATE_CONNECTED = -1;
+	const STATE_FAILED = 1;
+	
 	private $mysqli;
 	private $state;
 	
@@ -17,7 +21,7 @@ class Database {
 	private $database;
 	
 	function __construct(){
-		$this->state = 0;
+		$this->state = self::STATE_UNCONNECTED;
 		$this->host = 'localhost';
 		$this->port = '3306';
 		$this->user = '';
@@ -74,7 +78,7 @@ class Database {
 	
 	function connect(){
 		
-		$this->mysqli = mysqli_connect(
+		$this->mysqli = new mysqli(
 			$this->host,
 			$this->user,
 			$this->password,
@@ -82,16 +86,40 @@ class Database {
 			$this->port
 		);
 		
-		if(mysqli_connect_errno()) {
-			$error = mysqli_connect_error();
-			echo "<p style=\"color: red\">$error</p>";
+		if($this->mysqli->connect_errno) {
+			$this->state - self::STATE_FAILED;
+			$error = $this->mysqli->connect_error;
 			return false;
 		}
 		
-		mysqli_set_charset($this->mysqli, 'UTF8');
+		$this->mysqli->set_charset('UTF8');
 		
-		$this->state = 1;
+		$this->state = self::STATE_CONNECTED;
 		return true;
+	}
+
+	//------------------------------------------------
+	// query template 
+	//------------------------------------------------
+	
+	private function _query($query){
+		
+		// connection not initialized
+		if($this->state == self::STATE_UNCONNECTED){
+			$this->connect();
+		}
+		
+		// connection initialized, but failed
+		if($this->state == self::STATE_FAILED){
+			return false;
+		}
+		
+		// query
+		$result = $this->mysqli->query($query);
+		
+		// boolean result
+		return $result;
+		
 	}
 
 	//------------------------------------------------
@@ -100,24 +128,75 @@ class Database {
 	
 	function query($query){
 		
-		// connection not initialized
-		if($this->state == 0) {
-			$this->connect();
-		}
-		
-		// query
-		$result = mysqli_query($this->mysqli, $query);
+		// query	
+		$result = $this->_query($query);
 		
 		// boolean result
 		if(is_bool($result))
 			return $result;
 		
 		// rows in result
-		$array_result = array();
-		while($row = mysqli_fetch_assoc($result)){
-			$array_result[] = $row;
+		$rows = array();
+		while($row = $result->fetch_assoc()){
+			$rows[] = $row;
 		}
-		return $array_result;
+		
+		return $rows;
+	}
+	
+	//------------------------------------------------
+	// executing query
+	//------------------------------------------------
+	
+	function execute($query){
+		
+		// query
+		$result = $this->_query($query);
+		
+		// returning result
+		if($result === false) return false;
+		
+		return true;
+	}
+	
+	//------------------------------------------------
+	// returning one row
+	//------------------------------------------------
+	
+	function fetch_one($query){
+		
+		// query
+		$result = $this->_query($query);
+		
+		// failure handling
+		if($result === false) return false;
+		
+		// returning one row
+		$row = $this->mysqli->fetch_assoc();
+		
+		return $row;
+		
+	}
+	
+	//------------------------------------------------
+	// returning all rows
+	//------------------------------------------------
+		
+	function fetch_all($query){
+		
+		// query
+		$result = $this->_query($query);
+		
+		// failure handling
+		if($result === false) return false;
+		
+		// returning all rows
+		$rows = array();
+		while($row = $result->fetch_assoc()){
+			$rows[] = $row;
+		}
+		
+		return $rows;
 	}
 	
 	//------------------------------------------------
@@ -125,7 +204,7 @@ class Database {
 	//------------------------------------------------
 	
 	function get_affected_rows(){
-		return mysqli_affected_rows($this->mysqli);
+		return $this->mysqli->affected_rows;
 	}
 	
 	//------------------------------------------------
@@ -133,12 +212,12 @@ class Database {
 	//------------------------------------------------
 	
 	function start_transaction(){
-		mysqli_autocommit($this->mysqli, FALSE);
+		$this->mysqli->autocommit(FALSE);
 	}
 	
 	function commit_transaction(){
-		mysqli_commit($this->mysqli);
-		mysqli_autocommit($this->mysqli, TRUE);
+		$this->mysqli->commit();
+		$this->mysqli->autocommit(TRUE);
 	}
 	
 	
@@ -147,7 +226,7 @@ class Database {
 	//------------------------------------------------
 	
 	function close(){
-		mysqli_close($this->mysqli);
+		$this->mysqli->close();
 	}
 	
 }
