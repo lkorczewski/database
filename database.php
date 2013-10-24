@@ -87,7 +87,7 @@ class Database {
 		);
 		
 		if($this->mysqli->connect_errno) {
-			$this->state - self::STATE_FAILED;
+			$this->state = self::STATE_FAILED;
 			$error = $this->mysqli->connect_error;
 			return false;
 		}
@@ -220,6 +220,13 @@ class Database {
 		$this->mysqli->autocommit(TRUE);
 	}
 	
+	//------------------------------------------------
+	// string escaping
+	//------------------------------------------------
+	
+	function escape_string($string){
+		return $this->mysqli->real_escape_string($string);
+	}
 	
 	//------------------------------------------------
 	// closing connection
