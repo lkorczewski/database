@@ -14,23 +14,33 @@ class Database {
 	private $mysqli;
 	private $state;
 	
-	private $host;
-	private $port;
-	private $user;
-	private $password;
-	private $database;
+	private $host = 'localhost';
+	private $port = '3306';
+	private $user = '';
+	private $password = '';
+	private $database = '';
 	
-	function __construct(){
+	function __construct($parameters = false){
 		$this->state = self::STATE_UNCONNECTED;
-		$this->host = 'localhost';
-		$this->port = '3306';
-		$this->user = '';
-		$this->password = '';
-		$this->database = '';
+		
+		if($parameters){
+			if(isset($parameters['host']))
+				$this->host = $parameters['host'];
+			if(isset($parameters['port']))
+				$this->port = $parameters['port'];
+			if(isset($parameters['user']))
+				$this->user = $parameters['user'];
+			if(isset($parameters['password']))
+				$this->password = $parameters['password'];
+			if(isset($parameters['databse']))
+				$this->database = $parameters['database'];	
+		}
 	}
 	
 	//------------------------------------------------
 	// setting host for connection
+	//------------------------------------------------
+	// Deprecated!
 	//------------------------------------------------
 	
 	function set_host($host){
@@ -40,6 +50,8 @@ class Database {
 	//------------------------------------------------
 	// setting port for connection
 	//------------------------------------------------
+	// Deprecated!
+	//------------------------------------------------
 	
 	function set_port($port){
 		$this->port = $port;
@@ -48,16 +60,20 @@ class Database {
 	//------------------------------------------------
 	// setting username for connection
 	//------------------------------------------------
+	// Deprecated!
+	//------------------------------------------------
 	
-	function set_user($user, $password = ''){
+	function set_user($user, $password = false){
 		$this->user = $user;
-		if($password != ''){
+		if($password !== false){
 			$this->password = $password;
 		}
 	}
 	
 	//------------------------------------------------
 	// setting password for connection
+	//------------------------------------------------
+	// Deprecated!
 	//------------------------------------------------
 	
 	function set_password($password){
@@ -66,6 +82,8 @@ class Database {
 	
 	//------------------------------------------------
 	// setting database name for connection
+	//------------------------------------------------
+	// Deprecated!
 	//------------------------------------------------
 	
 	function set_database($database){
