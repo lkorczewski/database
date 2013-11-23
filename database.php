@@ -1,7 +1,6 @@
 <?php
 
 //====================================================
-// Łukasz Korczewski
 // database class
 //====================================================
 
@@ -11,18 +10,19 @@ class Database {
 	const STATE_CONNECTED = 1;
 	const STATE_FAILED = -1;
 	
-	private $mysqli;
-	private $state;
-	
+	// connection parameters
 	private $host = 'localhost';
 	private $port = '3306';
 	private $user = '';
 	private $password = '';
 	private $database = '';
 	
+	// inner parameters
+	private $mysqli;
+	private $state = self::STATE_UNCONNECTED;
+	private $last_error = [];
+	
 	function __construct($parameters = false){
-		$this->state = self::STATE_UNCONNECTED;
-		
 		if($parameters){
 			if(isset($parameters['host']))
 				$this->host = $parameters['host'];
@@ -106,7 +106,11 @@ class Database {
 		
 		if($this->mysqli->connect_errno) {
 			$this->state = self::STATE_FAILED;
-			$error = $this->mysqli->connect_error;
+			$this->last_error = [
+				'number'     => $this->mysqli->connect_errno,
+				'message'    => $this->mysqli->connect_error,
+				'backtrace'  => debug_backtrace(FALSE),
+			];
 			return false;
 		}
 		
@@ -115,7 +119,7 @@ class Database {
 		$this->state = self::STATE_CONNECTED;
 		return true;
 	}
-
+	
 	//------------------------------------------------
 	// query template 
 	//------------------------------------------------
@@ -134,6 +138,13 @@ class Database {
 		
 		// query
 		$result = $this->mysqli->query($query);
+		if($this->mysqli->error){
+			$this->last_error = [
+				'number'     => $this->mysqli->errno,
+				'message'    => $this->mysqli->error,
+				'backtrace'  => debug_backtrace(FALSE),
+			];
+		}
 		
 		// boolean result
 		return $result;
@@ -154,7 +165,7 @@ class Database {
 			return $result;
 		
 		// rows in result
-		$rows = array();
+		$rows = [];
 		while($row = $result->fetch_assoc()){
 			$rows[] = $row;
 		}
@@ -209,7 +220,7 @@ class Database {
 		if($result === false) return false;
 		
 		// returning all rows
-		$rows = array();
+		$rows = [];
 		while($row = $result->fetch_assoc()){
 			$rows[] = $row;
 		}
@@ -226,6 +237,14 @@ class Database {
 	}
 	
 	//------------------------------------------------
+	// error handling
+	//------------------------------------------------
+	
+	function get_last_error(){
+		return $this->last_error;
+	}
+	
+	//------------------------------------------------
 	// transaction
 	//------------------------------------------------
 	
@@ -235,6 +254,11 @@ class Database {
 	
 	function commit_transaction(){
 		$this->mysqli->commit();
+		$this->mysqli->autocommit(TRUE);
+	}
+	
+	function rollback_transaction(){
+		$this->mysqli->rollback();
 		$this->mysqli->autocommit(TRUE);
 	}
 	
