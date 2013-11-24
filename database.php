@@ -20,7 +20,7 @@ class Database {
 	// inner parameters
 	private $mysqli;
 	private $state = self::STATE_UNCONNECTED;
-	private $last_error = [];
+	private $last_error = false;
 	
 	function __construct($parameters = false){
 		if($parameters){
