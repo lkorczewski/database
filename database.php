@@ -6,16 +6,16 @@
 
 class Database {
 	
-	const STATE_UNCONNECTED = 0;
-	const STATE_CONNECTED = 1;
-	const STATE_FAILED = -1;
+	const STATE_UNCONNECTED  = 0;
+	const STATE_CONNECTED    = 1;
+	const STATE_FAILED       = -1;
 	
 	// connection parameters
-	private $host = 'localhost';
-	private $port = '3306';
-	private $user = '';
-	private $password = '';
-	private $database = '';
+	private $host      = 'localhost';
+	private $port      = '3306';
+	private $user      = '';
+	private $password  = '';
+	private $database  = '';
 	
 	// inner parameters
 	private $mysqli;
@@ -32,7 +32,7 @@ class Database {
 				$this->user = $parameters['user'];
 			if(isset($parameters['password']))
 				$this->password = $parameters['password'];
-			if(isset($parameters['databse']))
+			if(isset($parameters['database']))
 				$this->database = $parameters['database'];	
 		}
 	}
@@ -154,6 +154,8 @@ class Database {
 	//------------------------------------------------
 	// executing query
 	//------------------------------------------------
+	// backward compatibility; deprecated?
+	//------------------------------------------------
 	
 	function query($query){
 		
@@ -161,8 +163,9 @@ class Database {
 		$result = $this->_query($query);
 		
 		// boolean result
-		if(is_bool($result))
+		if(is_bool($result)){
 			return $result;
+		}
 		
 		// rows in result
 		$rows = [];
@@ -170,11 +173,16 @@ class Database {
 			$rows[] = $row;
 		}
 		
+		// freeing result
+		$result->free();
+		
 		return $rows;
 	}
 	
 	//------------------------------------------------
 	// executing query
+	//------------------------------------------------
+	// shouldn't it return number of rows affected?
 	//------------------------------------------------
 	
 	function execute($query){
@@ -186,6 +194,28 @@ class Database {
 		if($result === false) return false;
 		
 		return true;
+	}
+	
+	//------------------------------------------------
+	// returning one value
+	//------------------------------------------------
+	
+	function fetch_value($query){
+		
+		// query
+		$result = $this->_query($query);
+		
+		// failure handling
+		if($result === false) return false;
+		
+		// returning first value of first row
+		$row = $result->fetch_row();
+		$value = $row[0];
+		
+		// freeing result
+		$result->free();
+		
+		return $value;
 	}
 	
 	//------------------------------------------------
@@ -203,8 +233,15 @@ class Database {
 		// returning one row
 		$row = $result->fetch_assoc();
 		
+		// freeing result
+		$result->free();
+		
 		return $row;
 		
+	}
+	
+	function fetch_row($query){
+		return $this->fetch_one($query);
 	}
 	
 	//------------------------------------------------
@@ -225,7 +262,34 @@ class Database {
 			$rows[] = $row;
 		}
 		
+		// freeing result
+		$result->free();
+		
 		return $rows;
+	}
+	
+	//------------------------------------------------
+	// returning one column
+	//------------------------------------------------
+	
+	function fetch_column($query){
+		
+		//query
+		$result = $this->_query($query);
+		
+		// failure handling
+		if($result === false) return false;
+		
+		// returning array of first values of every row
+		$column = [];
+		while($row = $result->fetch_row()){
+			$column[] = $row[0];
+		}
+		
+		// freeing result
+		$result->free();
+		
+		return $column;
 	}
 	
 	//------------------------------------------------

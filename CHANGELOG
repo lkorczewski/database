@@ -1,4 +1,13 @@
 ----------------------------------------
+ 2.4.0
+----------------------------------------
+ * new methods:
+  - fetch_value
+  - fetch_row
+  - fetch_column
+ * buxfix: cleaning mysqli_result
+
+----------------------------------------
  2.3.1
 ----------------------------------------
  * bugfix: Database::get_last_error() now correctly returns false
