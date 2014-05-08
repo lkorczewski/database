@@ -4,6 +4,8 @@
 //  - decide on selection method
 //  - drop() method
 
+namespace Database;
+
 require_once __DIR__ . '/database.php';
 
 class Table {
@@ -11,7 +13,7 @@ class Table {
 	protected $database;
 	protected $table;
 	
-	function __construct(Database $database, $table){
+	function __construct(\Database $database, $table){
 		$this->database  = $database;
 		$this->table     = $table;
 	}
