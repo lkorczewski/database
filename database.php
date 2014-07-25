@@ -1,8 +1,6 @@
 <?php
 
-//====================================================
-// database class
-//====================================================
+namespace Database;
 
 class Database {
 	
@@ -35,59 +33,6 @@ class Database {
 			if(isset($parameters['database']))
 				$this->database = $parameters['database'];	
 		}
-	}
-	
-	//------------------------------------------------
-	// setting host for connection
-	//------------------------------------------------
-	// Deprecated!
-	//------------------------------------------------
-	
-	function set_host($host){
-		$this->host = $host;
-	}
-	
-	//------------------------------------------------
-	// setting port for connection
-	//------------------------------------------------
-	// Deprecated!
-	//------------------------------------------------
-	
-	function set_port($port){
-		$this->port = $port;
-	}
-	
-	//------------------------------------------------
-	// setting username for connection
-	//------------------------------------------------
-	// Deprecated!
-	//------------------------------------------------
-	
-	function set_user($user, $password = false){
-		$this->user = $user;
-		if($password !== false){
-			$this->password = $password;
-		}
-	}
-	
-	//------------------------------------------------
-	// setting password for connection
-	//------------------------------------------------
-	// Deprecated!
-	//------------------------------------------------
-	
-	function set_password($password){
-		$this->password = $password;
-	}
-	
-	//------------------------------------------------
-	// setting database name for connection
-	//------------------------------------------------
-	// Deprecated!
-	//------------------------------------------------
-	
-	function set_database($database){
-		$this->database = $database;
 	}
 	
 	//------------------------------------------------
@@ -344,4 +289,3 @@ class Database {
 	
 }
 
-?>
