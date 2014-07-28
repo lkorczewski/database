@@ -83,6 +83,8 @@ class Database {
 		
 		// query
 		$result = $this->mysqli->query($query);
+		
+		// error handling
 		if($this->mysqli->error){
 			$this->last_error = [
 				'number'     => $this->mysqli->errno,
@@ -243,6 +245,10 @@ class Database {
 	
 	function get_affected_rows(){
 		return $this->mysqli->affected_rows;
+	}
+	
+	function get_last_insert_id(){
+		return $this->mysqli->insert_id;
 	}
 	
 	//------------------------------------------------
