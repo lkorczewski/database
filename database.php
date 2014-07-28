@@ -31,7 +31,7 @@ class Database {
 			if(isset($parameters['password']))
 				$this->password = $parameters['password'];
 			if(isset($parameters['database']))
-				$this->database = $parameters['database'];	
+				$this->database = $parameters['database'];
 		}
 	}
 	
@@ -41,7 +41,7 @@ class Database {
 	
 	function connect(){
 		
-		$this->mysqli = new mysqli(
+		$this->mysqli = new \MySQLi(
 			$this->host,
 			$this->user,
 			$this->password,
