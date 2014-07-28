@@ -22,31 +22,58 @@ class Table {
 	// inserting
 	//----------------------------------------
 	
-	function insert(Array $values){
+	function insert(array $values){
 		$query =
 			"INSERT INTO `$this->table`" .
 			' SET ' . $this->prepare_values($values) .
 			';';
-		$this->database->execute($query);
+		$result = $this->database->execute($query);
+		
+		return $result;
 	}
 	
 	//----------------------------------------
 	// replaceing
 	//----------------------------------------
 	
-	function replace(Array $values){
+	function replace(array $values){
 		$query =
 			"REPLACE INTO `$this->table`" .
 			' SET ' . $this->prepare_values($values) .
 			';';
-		$this->database->execute($query);
+		$result = $this->database->execute($query);
+		
+		return $result;
+	}
+	
+	//----------------------------------------
+	// dropping
+	//----------------------------------------
+	// "if exists" should be part of the drop() method:
+	//   1) \Database\Table::IF_EXISTS
+	//   2) Database\IF_EXISTS
+	//   3) $table->drop()->execute();
+	//      $table->drop()->if_exists()->execute();
+	
+	function drop(){
+		$query = "DROP TABLE `$this->table`;";
+		$result = $this->database->execute($query);
+		
+		return $result;
+	}
+	
+	function drop_if_exists(){
+		$query = "DROP TABLE IF EXISTS `$this->table`;";
+		$result = $this->database->execute($query);
+		
+		return $result;
 	}
 	
 	//----------------------------------------
 	// preparing values for query
 	//----------------------------------------
 	
-	protected function prepare_values(Array $values){
+	protected function prepare_values(array $values){
 		$pairs = [];
 		foreach($values as $key => $value){
 			$pairs[] = "`$key` = " . $this->prepare_value($value);
