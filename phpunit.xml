@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
-<phpunit>
+<phpunit
+	bootstrap="./phpunit/bootstrap.php"
+	convertErrorsToExceptions="true"
+	convertWarnigsToExceptions="true"
+	convertNoticesToExceptions="true"
+>
 	<testsuites>
 		<testsuite name="Database Test Suite">
-			<directory suffix="_test.php">./phpunit_tests/</directory>
+			<directory suffix="_test.php">./phpunit/tests/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
