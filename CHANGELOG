@@ -1,4 +1,12 @@
 ----------------------------------------
+ 3.0.0
+----------------------------------------
+ * Extended_Database class allowing simle insert and replace queries
+ * namespace (compatibility breaker!)
+ * removal of deprecated functions (compatibility breaker!)
+ * PHPUnit tests
+
+----------------------------------------
  2.4.0
 ----------------------------------------
  * new methods:
