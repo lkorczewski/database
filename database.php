@@ -2,6 +2,8 @@
 
 namespace Database;
 
+use MySQLi;
+
 class Database {
 	
 	const STATE_UNCONNECTED  = 0;
@@ -20,7 +22,7 @@ class Database {
 	private $state = self::STATE_UNCONNECTED;
 	private $last_error = false;
 	
-	function __construct($parameters = false){
+	function __construct(array $parameters = null){
 		if($parameters){
 			if(isset($parameters['host']))
 				$this->host = $parameters['host'];
@@ -41,7 +43,7 @@ class Database {
 	
 	function connect(){
 		
-		$this->mysqli = new \MySQLi(
+		$this->mysqli = new MySQLi(
 			$this->host,
 			$this->user,
 			$this->password,
@@ -66,18 +68,30 @@ class Database {
 	}
 	
 	//------------------------------------------------
+	// ensuring connection for lazy loading 
+	//------------------------------------------------
+	
+	private function ensure_connection(){
+		switch($this->state){
+			case self::STATE_CONNECTED :
+				return true;
+			case self::STATE_UNCONNECTED :
+				return $this->connect();
+			case self::STATE_FAILED :
+				return false;
+			default:
+				return false;
+		}
+	}
+	
+	//------------------------------------------------
 	// query template 
 	//------------------------------------------------
 	
 	private function _query($query){
 		
-		// connection not initialized
-		if($this->state == self::STATE_UNCONNECTED){
-			$this->connect();
-		}
-		
-		// connection initialized, but failed
-		if($this->state == self::STATE_FAILED){
+		// ensuring connection
+		if(!$this->ensure_connection()){
 			return false;
 		}
 		
@@ -97,7 +111,7 @@ class Database {
 		return $result;
 		
 	}
-
+	
 	//------------------------------------------------
 	// executing query
 	//------------------------------------------------
@@ -106,7 +120,7 @@ class Database {
 	
 	function query($query){
 		
-		// query	
+		// query
 		$result = $this->_query($query);
 		
 		// boolean result
@@ -264,17 +278,35 @@ class Database {
 	//------------------------------------------------
 	
 	function start_transaction(){
-		$this->mysqli->autocommit(FALSE);
+		
+		// ensuring connection
+		if(!$this->ensure_connection()){
+			return false;
+		}
+		
+		$this->mysqli->autocommit(false);
 	}
 	
 	function commit_transaction(){
+		
+		// ensuring connection
+		if(!$this->ensure_connection()){
+			return false;
+		}
+		
 		$this->mysqli->commit();
-		$this->mysqli->autocommit(TRUE);
+		$this->mysqli->autocommit(true);
 	}
 	
 	function rollback_transaction(){
+		
+		// ensuring connection
+		if(!$this->ensure_connection()){
+			return false;
+		}
+		
 		$this->mysqli->rollback();
-		$this->mysqli->autocommit(TRUE);
+		$this->mysqli->autocommit(true);
 	}
 	
 	//------------------------------------------------
@@ -282,6 +314,13 @@ class Database {
 	//------------------------------------------------
 	
 	function escape_string($string){
+		
+		// ensuring connection
+		if(!$this->ensure_connection()){
+			return false;
+		}
+		// connection failed
+		
 		return $this->mysqli->real_escape_string($string);
 	}
 	
@@ -290,7 +329,15 @@ class Database {
 	//------------------------------------------------
 	
 	function close(){
+		
+		// ensuring connection
+		if(!$this->ensure_connection()){
+			return false;
+		}
+		
 		$this->mysqli->close();
+		
+		return true;
 	}
 	
 }

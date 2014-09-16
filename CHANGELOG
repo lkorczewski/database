@@ -1,10 +1,11 @@
 ----------------------------------------
  3.0.0
 ----------------------------------------
- * Extended_Database class allowing simle insert and replace queries
+ * Extended_Database class allowing simple insert and replace queries
  * namespace (compatibility breaker!)
  * removal of deprecated functions (compatibility breaker!)
- * PHPUnit tests
+ * a few PHPUnit tests
+ * bugfix: ensuring connection in transactions and string escaping
 
 ----------------------------------------
  2.4.0
